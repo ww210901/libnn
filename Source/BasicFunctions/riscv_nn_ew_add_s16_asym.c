@@ -48,24 +48,22 @@ int32_t riscv_nn_ew_add_s16_asym(const int16_t * in_vec1,
     (void)in_offset1;
     (void)in_offset2;
     (void)out_offset;
-    int32_t loop;
+    int32_t in1, in2, out;
+    uint32_t loop = size;
 
-    loop = size;
     while (loop > 0)
     {
-        int32_t input_1 = *in_vec1++ << lshift;
-        int32_t input_2 = *in_vec2++ << lshift;
+        in1 = *in_vec1++ << lshift;
+        in2 = *in_vec2++ << lshift;
+        in1 = riscv_nn_requantize_ns(in1, in_scale1, -in_rshift1);
+        in2 = riscv_nn_requantize_ns(in2, in_scale2, -in_rshift2);
 
-        input_1 = riscv_nn_requantize_ns(input_1, in_scale1, -in_rshift1);
-        input_2 = riscv_nn_requantize_ns(input_2, in_scale2, -in_rshift2);
+        out = in1 + in2;
+        out = riscv_nn_requantize_ns(out, out_scale, -out_rshift);
+        out = MAX(out, act_min);
+        out = MIN(out, act_max);
 
-        int32_t sum = input_1 + input_2;
-        sum = riscv_nn_requantize_ns(sum, out_scale, -out_rshift);
-
-        sum = MAX(sum, act_min);
-        sum = MIN(sum, act_max);
-
-        *out_vec++ = sum;
+        *out_vec++ = out;
         loop--;
     }
 

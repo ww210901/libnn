@@ -36,14 +36,12 @@ int32_t riscv_nn_ew_mulc_s16_asym(const int16_t * in_vec,
 {
     (void)in_offset;
     (void)out_offset;
-    int32_t loop;
+    int32_t loop = size;
 
-    loop = size;
     while (loop > 0)
     {
-        int32_t input_1 = *in_vec++;
-
-        int32_t output = input_1 * in_const;
+        int32_t input = *in_vec++;
+        int32_t output = input * in_const;
         output = riscv_nn_requantize(output, out_scale, out_shift);
         output = riscv_nn_clip_any(output, act_min, act_max);
 

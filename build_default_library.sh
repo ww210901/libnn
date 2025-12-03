@@ -28,6 +28,35 @@ show_help()
     echo
 }
 
+#########################
+# Check the toolchain is AST v540 or later
+#########################
+function is_ast540_or_later_toolchain
+{
+    local cc_ver
+
+    if [[ ${CC} =~ gcc ]]; then
+        cc_ver=($(${CC} -E -dM - < /dev/null | grep -w "__GNUC__"))
+        if [[ ${cc_ver[${#cc_ver[@]}-1]} -ge 14 ]]; then
+            return 0
+        else
+            return 1
+        fi
+    elif [[ ${CC} =~ clang ]]; then
+        cc_ver=($(${CC} -E -dM - < /dev/null | grep -w "__clang_major__"))
+        if [[ ${cc_ver[${#cc_ver[@]}-1]} -ge 17 ]]; then
+            return 0
+        else
+            return 1
+        fi
+    else
+        echo "Error! Not supported compiler!"
+        exit 1
+    fi
+
+    # echo "${cc_ver[${#cc_ver[@]}-1]}"
+}
+
 #=========== main ==============
 LIB_INSTALL_PATH=${1}
 TOOLCHAIN_PREFIX=${2}
@@ -78,7 +107,7 @@ elif [[ ${TOOLCHAIN_PREFIX} =~ ^riscv(32|64)* ]] ; then
     DEFAULT_COMPILE_FLAGS+=" -fno-strict-aliasing"
 fi
 DSP_COMPILE_FLAGS="-mext-dsp"
-VEC_COMPILE_FLAGS="-mext-vector -mtune=andes-45-series -mcmodel=large -DENA_VEC_ISA -DMAX_VLEN=1024 -DNDS_VEC_RVV_VERSION=1000 -DENA_NDS_V5_VEC_DOT_PROD -fno-tree-slp-vectorize -fno-tree-vectorize"
+VEC_COMPILE_FLAGS="-mext-vector -mtune=andes-45-series -mcmodel=large -DENA_VEC_ISA -DMAX_VLEN=1024 -DNDS_VEC_RVV_VERSION=1000 -DENA_NDS_V5_VEC_DOT_PROD -fno-tree-slp-vectorize -fno-tree-vectorize -mno-16-bit"
 CUR_COMPILE_FLAG=""
 CUR_LOG_FILE="build_lib.log"
 CWD=$(pwd)
@@ -87,16 +116,20 @@ LIB_OBJ_DIR="${LIB_ROOT}/lib_objs"
 LIB_NAME="libnn"
 LIB_NAME_A="${LIB_NAME}.a"
 LIB_NAME_P_A="${LIB_NAME}_p.a"
-LIB_NAME_V_ELEN32_A="${LIB_NAME}_v.a"
+LIB_NAME_V_A="${LIB_NAME}_v.a"
 LIB_NAME_V_ELEN64_A="${LIB_NAME}_v_elen64.a"
-LIB_NAME_V_ELEN32_SEG_A="${LIB_NAME}_v_seg.a"
+LIB_NAME_V_ELEN64_FELEN64_A="${LIB_NAME}_v_elen64_felen64.a"
+LIB_NAME_V_SEG_A="${LIB_NAME}_v_seg.a"
 LIB_NAME_V_ELEN64_SEG_A="${LIB_NAME}_v_elen64_seg.a"
+LIB_NAME_V_ELEN64_FELEN64_SEG_A="${LIB_NAME}_v_elen64_felen64_seg.a"
 LIB_NAME_SO="${LIB_NAME}.so"
 LIB_NAME_P_SO="${LIB_NAME}_p.so"
-LIB_NAME_V_ELEN32_SO="${LIB_NAME}_v.so"
+LIB_NAME_V_SO="${LIB_NAME}_v.so"
 LIB_NAME_V_ELEN64_SO="${LIB_NAME}_v_elen64.so"
-LIB_NAME_V_ELEN32_SEG_SO="${LIB_NAME}_v_seg.so"
+LIB_NAME_V_ELEN64_FELEN64_SO="${LIB_NAME}_v_elen64_felen64.so"
+LIB_NAME_V_SEG_SO="${LIB_NAME}_v_seg.so"
 LIB_NAME_V_ELEN64_SEG_SO="${LIB_NAME}_v_elen64_seg.so"
+LIB_NAME_V_ELEN64_FELEN64_SEG_SO="${LIB_NAME}_v_elen64_felen64_seg.so"
 MAKE="make -f ${LIB_ROOT}/Makefile_lib.mak CROSS_COMPILE="${TOOLCHAIN_PREFIX}-" CC="${CC}""
 
 # zol flags for V3 CPUs with DSP
@@ -217,84 +250,101 @@ if [[ ${TOOLCHAIN_PREFIX} == *"linux"* ]]; then
 
     # Since the vector extension is NOT in current toolcahin's multi-lib list,
     # we need to build the v-ext library manually
-    if [[ ${TOOLCHAIN_PREFIX} == "riscv64"* ]] ; then   #only building vector version library for RV64
-        # check whether the float abi is supported
-        ${CC} -E -dM - < /dev/null | grep -qw "__riscv_float_abi_soft"
-        is_soft_ft_abi=$?
-        if [ ${is_soft_ft_abi} -eq 0 ]; then
-            ELE32_CONFIG="@mext-vector=zve32x"
-        else
-            ELE32_CONFIG="@mext-vector=zve32f"
-        fi
-        ELE32_CONFIG_LOG_NAME=${ELE32_CONFIG/@/}
-        ELE32_CONFIG_LOG_NAME=${ELE32_CONFIG_LOG_NAME/=/-}
-
-        LIB_V_COMBINATION=("lib64/lp64;@march=rv64imac_xandes@mabi=lp64@mext-vector=zve32x;${LIB_NAME_V_ELEN32_A}"
-                           "lib64/lp64;@march=rv64imac_xandes@mabi=lp64@mext-vector=zve32x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN32_SEG_A}"
-                           "lib64/lp64;@march=rv64imac_xandes@mabi=lp64@mext-vector=zve64x;${LIB_NAME_V_ELEN64_A}"
-                           "lib64/lp64;@march=rv64imac_xandes@mabi=lp64@mext-vector=zve64x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}"
-                           "lib64/lp64d;@march=rv64imafdc_xandes@mabi=lp64d@mext-vector=zve32f;${LIB_NAME_V_ELEN32_A}"
-                           "lib64/lp64d;@march=rv64imafdc_xandes@mabi=lp64d@mext-vector=zve32f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN32_SEG_A}"
-                           "lib64/lp64d;@march=rv64imafdc_xandes@mabi=lp64d@mext-vector=zve64d;${LIB_NAME_V_ELEN64_A}"
-                           "lib64/lp64d;@march=rv64imafdc_xandes@mabi=lp64d@mext-vector=zve64d@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}")
-
-        # Set the cmodel flag only for the static libraries as using glibc
-        # toolchain; thus, here we remove it from the default flags for v-ext
-        # algorithm.
-        VEC_COMPILE_FLAGS=${VEC_COMPILE_FLAGS/-mcmodel=large/}
-
-        for lib_v_option in "${LIB_V_COMBINATION[@]}"; do
-            TEMP_SUB_DIR=`echo ${lib_v_option}| cut -d ';' -f1`
-            TEMP_FLAG=`echo ${lib_v_option}| cut -d ';' -f2`
-            CUR_STATIC_LIB_NAME_V=`echo ${lib_v_option}| cut -d ';' -f3`
-            CUR_DYNAMIC_LIB_NAME_V=${CUR_STATIC_LIB_NAME_V/.a/.so}
-            CUR_LOG_FILE="build_multi_lib_`echo $TEMP_SUB_DIR | sed 's/\//_/g'`.log"
-            CUR_LIB_PATH="${LIB_INSTALL_PATH}/${TEMP_SUB_DIR}"
-            CUR_COMPILE_FLAG=`echo $TEMP_FLAG | sed 's/@/ -/g'`
-
-            # automatically enable the zfh extension if the toolcahin supports it
-            # Note. We should check the zfh extension could be enabled or not with
-            # EACH "CUR_COMPILE_FLAG". The zfh extension may be supported with the
-            # toolchain; however, it's disabled by the "CUR_COMPILE_FLAG".
-            DEFAULT_COMPILE_FLAGS_TMP="${DEFAULT_COMPILE_FLAGS}"
-            ${CC} -mzfh -E -dM ${CUR_COMPILE_FLAG} - < /dev/null &> /dev/null
-            if [ $? -eq 0 ]; then
-                DEFAULT_COMPILE_FLAGS_TMP="${DEFAULT_COMPILE_FLAGS_TMP} -mzfh"
-            fi
-
-            mkdir -p ${CUR_LIB_PATH}
-            echo "${TEMP_FLAG} --> ${CUR_LIB_PATH}"
-
-            # (1) static library
-            echo -n "    Building static libraries ... "
-            ${MAKE} clean > /dev/null
-            ${MAKE} ${DEFAULT_MAKE_FLAGS} CFLAGS="${DEFAULT_COMPILE_FLAGS_TMP} ${VEC_COMPILE_FLAGS} ${CUR_COMPILE_FLAG} -mcmodel=large" >> ${CUR_LOG_FILE} 2>&1
-            if [ $? == 0 ]; then
-                echo "success"
-                cp -pf ${LIB_ROOT}/${LIB_NAME_A} ${CUR_LIB_PATH}/${CUR_STATIC_LIB_NAME_V}
-            else
-                echo "FAIL"
-            fi
-
-            # (2) dynamic library
-            echo -n "    Building dynamic libraries ... "
-            ${MAKE} clean > /dev/null
-            ${MAKE} ${DEFAULT_MAKE_FLAGS} CFLAGS="${DEFAULT_COMPILE_FLAGS_TMP} ${VEC_COMPILE_FLAGS} ${CUR_COMPILE_FLAG} ${DEFAULT_DYNAMIC_LIB_FLAG}" CCASFLAGS="${DEFAULT_DYNAMIC_LIB_FLAG}">> ${CUR_LOG_FILE} 2>&1
-            if [[ $? -eq 0 ]]; then
-                ALL_OBJ_FILES=`ls ${LIB_OBJ_DIR}/*.o`
-                build_shared_lib_cmd="${CC} ${DEFAULT_DYNAMIC_LIB_FLAG} ${CUR_COMPILE_FLAG} -shared -o ${CUR_LIB_PATH}/${CUR_DYNAMIC_LIB_NAME_V} ${ALL_OBJ_FILES}"
-                echo "${build_shared_lib_cmd}" >> ${CUR_LOG_FILE}
-                ${build_shared_lib_cmd} >> ${CUR_LOG_FILE} 2>&1
-                if [[ $? -eq 0 ]]; then
-                    echo "success"
-                else
-                    echo "FAIL"
-                fi
-            else
-                echo "FAIL"
-            fi
-        done
+    # check whether the float abi is supported
+    ${CC} -E -dM - < /dev/null | grep -qw "__riscv_float_abi_soft"
+    is_soft_ft_abi=$?
+    if [ ${is_soft_ft_abi} -eq 0 ]; then
+        ELE32_CONFIG="@mext-vector=zve32x"
+    else
+        ELE32_CONFIG="@mext-vector=zve32f"
     fi
+    ELE32_CONFIG_LOG_NAME=${ELE32_CONFIG/@/}
+    ELE32_CONFIG_LOG_NAME=${ELE32_CONFIG_LOG_NAME/=/-}
+
+    if is_ast540_or_later_toolchain; then
+        if [[ ${TOOLCHAIN_PREFIX} == "riscv32"* ]] ; then
+            LIB_V_COMBINATION=("lib32/ilp32;@march=rv32ima_zicsr_zifencei_xandes@mabi=ilp32@mext-vector=zve32x;${LIB_NAME_V_A}"
+                               "lib32/ilp32;@march=rv32ima_zicsr_zifencei_xandes@mabi=ilp32@mext-vector=zve32x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}"
+                               "lib32/ilp32d;@march=rv32imafd_zicsr_zifencei_xandes@mabi=ilp32d@mext-vector=zve32f;${LIB_NAME_V_A}"
+                               "lib32/ilp32d;@march=rv32imafd_zicsr_zifencei_xandes@mabi=ilp32d@mext-vector=zve32f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}")
+        else
+            LIB_V_COMBINATION=("lib64/lp64;@march=rv64ima_zicsr_zifencei_xandes@mabi=lp64@mext-vector=zve32x;${LIB_NAME_V_A}"
+                               "lib64/lp64;@march=rv64ima_zicsr_zifencei_xandes@mabi=lp64@mext-vector=zve32x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}"
+                               "lib64/lp64;@march=rv64ima_zicsr_zifencei_xandes@mabi=lp64@mext-vector=zve64x;${LIB_NAME_V_ELEN64_A}"
+                               "lib64/lp64;@march=rv64ima_zicsr_zifencei_xandes@mabi=lp64@mext-vector=zve64x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}"
+                               "lib64/lp64d;@march=rv64imafd_zicsr_zifencei_xandes@mabi=lp64d@mext-vector=zve32f;${LIB_NAME_V_A}"
+                               "lib64/lp64d;@march=rv64imafd_zicsr_zifencei_xandes@mabi=lp64d@mext-vector=zve32f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}"
+                               "lib64/lp64d;@march=rv64imafd_zicsr_zifencei_xandes@mabi=lp64d@mext-vector=zve64d;${LIB_NAME_V_ELEN64_FELEN64_A}"
+                               "lib64/lp64d;@march=rv64imafd_zicsr_zifencei_xandes@mabi=lp64d@mext-vector=zve64d@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_FELEN64_SEG_A}"
+                               "lib64/lp64d;@march=rv64imafd_zicsr_zifencei_xandes@mabi=lp64d@mext-vector=zve64f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}")
+        fi
+    else
+        LIB_V_COMBINATION=("lib64/lp64;@march=rv64imc_xandes@mabi=lp64@mext-vector=zve32x;${LIB_NAME_V_A}"
+                           "lib64/lp64;@march=rv64imc_xandes@mabi=lp64@mext-vector=zve32x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}"
+                           "lib64/lp64;@march=rv64imc_xandes@mabi=lp64@mext-vector=zve64x;${LIB_NAME_V_ELEN64_A}"
+                           "lib64/lp64;@march=rv64imc_xandes@mabi=lp64@mext-vector=zve64x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}"
+                           "lib64/lp64d;@march=rv64imfdc_xandes@mabi=lp64d@mext-vector=zve32f;${LIB_NAME_V_A}"
+                           "lib64/lp64d;@march=rv64imfdc_xandes@mabi=lp64d@mext-vector=zve32f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}"
+                           "lib64/lp64d;@march=rv64imfdc_xandes@mabi=lp64d@mext-vector=zve64d;${LIB_NAME_V_ELEN64_A}"
+                           "lib64/lp64d;@march=rv64imfdc_xandes@mabi=lp64d@mext-vector=zve64d@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}")
+    fi
+
+    # Set the cmodel flag only for the static libraries as using glibc
+    # toolchain; thus, here we remove it from the default flags for v-ext
+    # algorithm.
+    VEC_COMPILE_FLAGS=${VEC_COMPILE_FLAGS/-mcmodel=large/}
+
+    for lib_v_option in "${LIB_V_COMBINATION[@]}"; do
+        TEMP_SUB_DIR=`echo ${lib_v_option}| cut -d ';' -f1`
+        TEMP_FLAG=`echo ${lib_v_option}| cut -d ';' -f2`
+        CUR_STATIC_LIB_NAME_V=`echo ${lib_v_option}| cut -d ';' -f3`
+        CUR_DYNAMIC_LIB_NAME_V=${CUR_STATIC_LIB_NAME_V/.a/.so}
+        CUR_LOG_FILE="build_multi_lib_`echo $TEMP_SUB_DIR | sed 's/\//_/g'`.log"
+        CUR_LIB_PATH="${LIB_INSTALL_PATH}/${TEMP_SUB_DIR}"
+        CUR_COMPILE_FLAG=`echo $TEMP_FLAG | sed 's/@/ -/g'`
+
+        # automatically enable the zfh extension if the toolcahin supports it
+        # Note. We should check the zfh extension could be enabled or not with
+        # EACH "CUR_COMPILE_FLAG". The zfh extension may be supported with the
+        # toolchain; however, it's disabled by the "CUR_COMPILE_FLAG".
+        DEFAULT_COMPILE_FLAGS_TMP="${DEFAULT_COMPILE_FLAGS}"
+        ${CC} -mzfh -E -dM ${CUR_COMPILE_FLAG} - < /dev/null &> /dev/null
+        if [ $? -eq 0 ]; then
+            DEFAULT_COMPILE_FLAGS_TMP="${DEFAULT_COMPILE_FLAGS_TMP} -mzfh"
+        fi
+
+        mkdir -p ${CUR_LIB_PATH}
+        echo "${TEMP_FLAG} --> ${CUR_LIB_PATH}"
+
+        # (1) static library
+        echo -n "    Building static libraries ... "
+        ${MAKE} clean > /dev/null
+        ${MAKE} ${DEFAULT_MAKE_FLAGS} CFLAGS="${DEFAULT_COMPILE_FLAGS_TMP} ${VEC_COMPILE_FLAGS} ${CUR_COMPILE_FLAG} -mcmodel=large" >> ${CUR_LOG_FILE} 2>&1
+        if [ $? == 0 ]; then
+            echo "success"
+            cp -pf ${LIB_ROOT}/${LIB_NAME_A} ${CUR_LIB_PATH}/${CUR_STATIC_LIB_NAME_V}
+        else
+            echo "FAIL"
+        fi
+
+        # (2) dynamic library
+        echo -n "    Building dynamic libraries ... "
+        ${MAKE} clean > /dev/null
+        ${MAKE} ${DEFAULT_MAKE_FLAGS} CFLAGS="${DEFAULT_COMPILE_FLAGS_TMP} ${VEC_COMPILE_FLAGS} ${CUR_COMPILE_FLAG} ${DEFAULT_DYNAMIC_LIB_FLAG}" CCASFLAGS="${DEFAULT_DYNAMIC_LIB_FLAG}">> ${CUR_LOG_FILE} 2>&1
+        if [[ $? -eq 0 ]]; then
+            ALL_OBJ_FILES=`ls ${LIB_OBJ_DIR}/*.o`
+            build_shared_lib_cmd="${CC} ${DEFAULT_DYNAMIC_LIB_FLAG} ${CUR_COMPILE_FLAG} -shared -o ${CUR_LIB_PATH}/${CUR_DYNAMIC_LIB_NAME_V} ${ALL_OBJ_FILES}"
+            echo "${build_shared_lib_cmd}" >> ${CUR_LOG_FILE}
+            ${build_shared_lib_cmd} >> ${CUR_LOG_FILE} 2>&1
+            if [[ $? -eq 0 ]]; then
+                echo "success"
+            else
+                echo "FAIL"
+            fi
+        else
+            echo "FAIL"
+        fi
+    done
 
 else
 
@@ -319,6 +369,11 @@ else
         CUR_COMPILE_FLAG=`echo $TEMP_FLAG | sed 's/@/ -/g'`
         CUR_COMPILE_FLAG=`echo $CUR_COMPILE_FLAG | sed 's/-mext-zol//g'`
 
+        # customized optimization for 45-series
+        if [[ ${CUR_COMPILE_FLAG} =~ mtune=andes-45-series ]]; then
+            CUR_COMPILE_FLAG+=" -DENA_45_SERIES_OPT"
+        fi
+
         # automatically enable the zfh extension if the toolcahin supports it
         # Note. We should check the zfh extension could be enabled or not with
         # EACH "CUR_COMPILE_FLAG". The zfh extension may be supported with the
@@ -327,11 +382,6 @@ else
         ${CC} -mzfh -E -dM ${CUR_COMPILE_FLAG} - < /dev/null &> /dev/null
         if [ $? -eq 0 ]; then
             DEFAULT_COMPILE_FLAGS_TMP="${DEFAULT_COMPILE_FLAGS_TMP} -mzfh"
-        fi
-
-        # customized optimization for 45-series
-        if [[ ${CUR_COMPILE_FLAG} =~ mtune=andes-45-series ]]; then
-            CUR_COMPILE_FLAG+=" -DENA_45_SERIES_OPT"
         fi
 
         ## When building the multi-lib with -mno-nds option, the -mext-dsp otion should be removed.
@@ -376,38 +426,53 @@ else
     # v-ext version library is not for RVE toolchain now
     ${CC} -E -dM - < /dev/null | grep -qw "__riscv_abi_rve"
     is_rve=$?
-    if [ ${is_rve} -ne 0 ] && [[ ${TOOLCHAIN_PREFIX} == "riscv64"* ]]; then
+    if [ ${is_rve} -ne 0 ]; then
 
         # check the float abi
         ${CC} -E -dM - < /dev/null | grep -qw "__riscv_float_abi_double"
         is_hard_ft_abi_double=$?
         ${CC} -E -dM - < /dev/null | grep -qw "__riscv_float_abi_single"
         is_hard_ft_abi_single=$?
-        if [ ${is_hard_ft_abi_double} -eq 0 ]; then
-            ELE32_CONFIG="@mext-vector=zve32f"
-            ELE64_CONFIG="@mext-vector=zve64d"
-        elif [ ${is_hard_ft_abi_single} -eq 0 ]; then
-            ELE32_CONFIG="@mext-vector=zve32f"
-            ELE64_CONFIG="@mext-vector=zve64f"
+
+        if [[ ${TOOLCHAIN_PREFIX} == "riscv64"* ]]; then
+            # library combination format: <log_name>;<compile_flags>;<out_lib_name>
+
+            if [ ${is_hard_ft_abi_double} -eq 0 ]; then
+                LIB_V_COMBINATION=("mext-vector/mext-vector-zve32f;@mext-vector=zve32f;${LIB_NAME_V_A}"
+                                   "mext-vector/mext-vector-zve32f/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve32f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}"
+                                   "mext-vector/mext-vector-zve64d;@mext-vector=zve64d;${LIB_NAME_V_ELEN64_FELEN64_A}"
+                                   "mext-vector/mext-vector-zve64d/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve64d@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_FELEN64_SEG_A}"
+                                   # "mext-vector/mext-vector-zve64f;@mext-vector=zve64f;${LIB_NAME_V_ELEN64_A}"    # removed
+                                   "mext-vector/mext-vector-zve64f/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve64f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}")
+            elif [ ${is_hard_ft_abi_single} -eq 0 ]; then
+                LIB_V_COMBINATION=("mext-vector/mext-vector-zve32f;@mext-vector=zve32f;${LIB_NAME_V_A}"
+                                   "mext-vector/mext-vector-zve32f/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve32f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}"
+                                   "mext-vector/mext-vector-zve64f;@mext-vector=zve64f;${LIB_NAME_V_ELEN64_A}"
+                                   "mext-vector/mext-vector-zve64f/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve64f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}")
+            else
+                LIB_V_COMBINATION=("mext-vector/mext-vector-zve32x;@mext-vector=zve32x;${LIB_NAME_V_A}"
+                                   "mext-vector/mext-vector-zve32x/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve32x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}"
+                                   "mext-vector/mext-vector-zve64x;@mext-vector=zve64x;${LIB_NAME_V_ELEN64_A}"
+                                   "mext-vector/mext-vector-zve64x/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve64x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}")
+            fi
         else
-            ELE32_CONFIG="@mext-vector=zve32x"
-            ELE64_CONFIG="@mext-vector=zve64x"
+            if [ ${is_hard_ft_abi_double} -eq 0 ] || [ ${is_hard_ft_abi_single} -eq 0 ]; then
+                LIB_V_COMBINATION=("mext-vector/mext-vector-zve32f;@mext-vector=zve32f;${LIB_NAME_V_A}"
+                                   "mext-vector/mext-vector-zve32f/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve32f@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}")
+            else
+                LIB_V_COMBINATION=("mext-vector/mext-vector-zve32x;@mext-vector=zve32x;${LIB_NAME_V_A}"
+                                   "mext-vector/mext-vector-zve32x/ENA_VEC_ISA_ZVLSSEG;@mext-vector=zve32x@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_SEG_A}")
+            fi
         fi
-        ELE32_CONFIG_LOG_NAME=${ELE32_CONFIG/@/}
-        ELE32_CONFIG_LOG_NAME=${ELE32_CONFIG_LOG_NAME/=/-}
-        LIB_V_COMBINATION=("mext-vector/${ELE32_CONFIG_LOG_NAME};${ELE32_CONFIG};${LIB_NAME_V_ELEN32_A}"
-                           "mext-vector/${ELE32_CONFIG_LOG_NAME}/ENA_VEC_ISA_ZVLSSEG;${ELE32_CONFIG}@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN32_SEG_A}"
-                           "mext-vector;${ELE64_CONFIG};${LIB_NAME_V_ELEN64_A}"
-                           "mext-vector/ENA_VEC_ISA_ZVLSSEG;${ELE64_CONFIG}@DENA_VEC_ISA_ZVLSSEG;${LIB_NAME_V_ELEN64_SEG_A}")
 
         for lib_v_option in "${LIB_V_COMBINATION[@]}"; do
-           TEMP_SUB_DIR=`echo ${lib_v_option}| cut -d ';' -f1`
+           TEMP_LOG_NAME=`echo ${lib_v_option}| cut -d ';' -f1`
            TEMP_FLAG=`echo ${lib_v_option}| cut -d ';' -f2`
            CUR_LIB_NAME_V=`echo ${lib_v_option}| cut -d ';' -f3`
-           CUR_LOG_FILE="build_multi_lib_`echo $TEMP_SUB_DIR | sed 's/\//_/g'`.log"
+           CUR_LOG_FILE="build_multi_lib_`echo $TEMP_LOG_NAME | sed 's/\//_/g'`.log"
            CUR_LIB_PATH="${LIB_INSTALL_PATH}"
            CUR_COMPILE_FLAG=`echo $TEMP_FLAG | sed 's/@/ -/g'`
-           CFLAGS="${DEFAULT_COMPILE_FLAGS_TMP} ${CUR_COMPILE_FLAG} ${VEC_COMPILE_FLAGS}"
+           CFLAGS="${DEFAULT_COMPILE_FLAGS_TMP} ${VEC_COMPILE_FLAGS} ${CUR_COMPILE_FLAG}"
 
            echo "${TEMP_FLAG} --> ${CUR_LIB_PATH}"
            echo "    Making ${CUR_LIB_NAME_V} with CFLAGS=${CFLAGS}"

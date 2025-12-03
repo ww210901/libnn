@@ -284,6 +284,9 @@ __STATIC_FORCEINLINE q31_t riscv_nn_requantize_s64(const q63_t val, const q31_t 
 #define EXP_ON_NEG(x)  riscv_nn_exp_on_negative_values((x))
 #define ONE_OVER1(x)   riscv_nn_one_over_one_plus_x_for_x_in_0_1((x))
 
+//----- misc definitinos for alignment_begin -----
+#define NN_ALIGN_BYTE 64
+
 // this sub-function is used to make
 //  - the allocated buffer size be a multiple of "align_byte"
 //  - the pointers point to the address of aligned "align_byte"
@@ -294,7 +297,9 @@ __STATIC_FORCEINLINE unsigned long nn_align(unsigned long src, unsigned long ali
     src = (src + (align_byte - 1)) & ~(align_byte - 1);
     return src;
 }
+//----- misc definitinos for alignment_end -----
 
+//----- libnn internal version malloc/free_begin -----
 __STATIC_FORCEINLINE void* nn_malloc(size_t size)
 {
     void *ret_ptr;
@@ -306,6 +311,12 @@ __STATIC_FORCEINLINE void nn_free(void *ptr)
 {
     free(ptr);
 }
+
+#define NN_MALLOC(size) nn_malloc(size)
+#define NN_FREE(PTR) nn_free(PTR)
+
+//----- libnn internal version malloc/free_end -----
+
 
 //----- sub-functions for softmax layer_begin -----
 // @note The following functions are used only for softmax layer, scaled bits = 5 assumed

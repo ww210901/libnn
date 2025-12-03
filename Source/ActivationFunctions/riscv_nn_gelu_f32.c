@@ -20,7 +20,6 @@
 /** @file*/
 
 #include "internal_nn_math.h"
-#include "riscv_nn_activation.h"
 
 //// Relu Functions
 

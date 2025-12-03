@@ -5,9 +5,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<meta name="author" content="Andes Technology">
+<meta name="author" content="Andes Technology Corporation">
 <meta name="copyright" content="2020-{sys: date +%Y}">
-<title>AndesAIRE&#8482; Neural Network Library User Manual</title>
+<title>AndesAIRE Neural Network Library User Manual</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -440,11 +440,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>AndesAIRE&#8482; Neural Network Library User Manual</h1>
+<h1>AndesAIRE Neural Network Library User Manual</h1>
 <div class="details">
-<span id="author" class="author">Andes Technology</span><br>
+<span id="author" class="author">Andes Technology Corporation</span><br>
 <span id="email" class="email"><a href="mailto:support@andestech.com">support@andestech.com</a></span><br>
-<span id="revnumber">version 3.4.0</span>
+<span id="revnumber">version 3.5.0</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
@@ -453,7 +453,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <ul class="sectlevel2">
 <li><a href="#section:linking_newlib_mculib">Linking Options for Newlib and MCUlib Toolchains</a></li>
 <li><a href="#section:linking_glibc">Linking Options for Glibc Toolchains</a></li>
-<li><a href="#_notes_for_newlib_mculib_and_glibc_toolchains">Notes for Newlib, MCUlib, and Glibc Toolchains</a></li>
+<li><a href="#section:toolchains_notes">Notes for Newlib, MCUlib, and Glibc Toolchains</a></li>
 </ul>
 </li>
 <li><a href="#section:function_documentation">Function Documentation</a></li>
@@ -808,11 +808,11 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sectionbody">
 <div class="paragraph">
 <p>This document contains information about neural network function specifications in
-AndesAIRE Neural Network Library (NN Library, also known as libnn) for
-Andes toolchains and describes how to use these functions.</p>
+AndesAIRE Neural Network Library (hereafter NN Library or libnn) for
+AndeStar V5 toolchains and describes how to use these functions.</p>
 </div>
 <div class="paragraph">
-<p>NN Library provides comprehensive functions that have been optimized for DSP ISA and RISC-V Vector Extension.
+<p>NN Library provides comprehensive functions that have been optimized for DSP ISA and RISC-V Vector extensions.
 These functions include activation, convolution, fully-connected layer, pooling, and miscellaneous auxiliary functions.</p>
 </div>
 <div class="paragraph">
@@ -822,7 +822,7 @@ It benefits you by saving development resources, allowing you to focus on your s
 </div>
 <div class="paragraph">
 <p>The functions can be classified into several categories: activation, basic math, concatenation, convolution,
-fully-connected layer, pooling, softmax, and utilities.</p>
+fully-connected layer, pooling, Softmax, and utilities.</p>
 </div>
 <div class="paragraph">
 <p>To call the library functions, simply include header files provided by NN Library.
@@ -860,7 +860,7 @@ These header files define prototypes of functions and are named according to the
 <p>For example, to use activation functions to activate the neural network data, you can include <code>riscv_nn_activation.h</code> in your C files.</p>
 </div>
 <div class="paragraph">
-<p>NN Library defines several data types in <code>riscv_math_types.h</code> (as quoted below) to properly keep the data during computation.</p>
+<p>NN Library defines several data types in <code>riscv_math_types.h</code> to properly keep the data during computation.</p>
 </div>
 <div class="listingblock">
 <div class="title">riscv_math_types.h</div>
@@ -1089,6 +1089,7 @@ and <code>riscv_nn_upsample_method</code> for selecting the upsampling algorithm
 } riscv_nn_transpose_format;</code></pre>
 </div>
 </div>
+<div style="page-break-after: always;"></div>
 <div class="sect2">
 <h3 id="section:linking_newlib_mculib">Linking Options for Newlib and MCUlib Toolchains</h3>
 <div class="paragraph">
@@ -1119,24 +1120,35 @@ and <code>riscv_nn_upsample_method</code> for selecting the upsampling algorithm
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library <code>libnn_v.a</code> with RISC-V Vector Extension,
-                          AndeStar V5 Vector Dot Product Extension, and ELEN=32 support</p></td>
+                             AndeStar V5 Vector Dot Product Extension, and ELEN=32 support</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_seg</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library <code>libnn_v_seg.a</code> with RISC-V Vector Extension,
-                          AndeStar V5 Vector Dot Product Extension, ELEN=32 support,
-                          and RISC-V Vector segment load/store instructions</p></td>
+                             AndeStar V5 Vector Dot Product Extension, ELEN=32 support,
+                             and RISC-V Vector segment load/store instructions</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library <code>libnn_v_elen64.a</code> with RISC-V Vector Extension,
-                          AndeStar V5 Vector Dot Product Extension, and ELEN=64 support</p></td>
+                             AndeStar V5 Vector Dot Product Extension, and ELEN=64 support</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_seg</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library <code>libnn_v_elen64_seg.a</code> with RISC-V Vector Extension,
-                          AndeStar V5 Vector Dot Product Extension, ELEN=64 support,
-                          and RISC-V Vector segment load/store instructions</p></td>
+                             AndeStar V5 Vector Dot Product Extension, ELEN=64 support,
+                             and RISC-V Vector segment load/store instructions</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library <code>libnn_v_elen64_felen64.a</code> with RISC-V Vector Extension,
+                            AndeStar V5 Vector Dot Product Extension, and ELEN=64 and FELEN=64 support</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64_seg</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library <code>libnn_v_elen64_felen64_seg.a</code> with RISC-V Vector Extension,
+                            AndeStar V5 Vector Dot Product Extension, ELEN=64 and FELEN=64 support,
+                            and RISC-V Vector segment load/store instructions</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-mext-dsp</code></p></td>
@@ -1166,72 +1178,105 @@ and <code>riscv_nn_upsample_method</code> for selecting the upsampling algorithm
 </table>
 <div class="paragraph">
 <p>To ensure successful compilation of programs that use library functions relying
-on the standard C math library, be sure to link against it by specifying the
-<code>-lm</code> option.</p>
+on the standard C math library, be sure to link against it by specifying the <code>-lm</code> option.</p>
 </div>
 <div class="paragraph">
-<p><a href="#table-linking-options">Supported Linking Options for Different Extensions</a> summarizes the required linking options depending on the extension supportability of running targets.</p>
+<p><a href="#table-linking-options-newlib-mculib">Linking Options by Extension and Vector Configuration (Newlib/MCUlib Toolchain)</a> summarizes the required linking options depending on the extension supportability of running targets.</p>
 </div>
-<table id="table-linking-options" class="tableblock frame-topbot grid-rows stretch">
-<caption class="title">Table 2. Supported Linking Options for Different Extensions</caption>
+<table id="table-linking-options-newlib-mculib" class="tableblock frame-topbot grid-rows stretch">
+<caption class="title">Table 2. Linking Options by Extension and Vector Configuration (Newlib/MCUlib Toolchain)</caption>
 <colgroup>
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 14.2857%;">
-<col style="width: 42.8572%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
 <th class="tableblock halign-left valign-top">DSP ISA Extension</th>
 <th class="tableblock halign-left valign-top">RISC-V Vector and AndeStar V5 Vector Dot Product Extensions</th>
 <th class="tableblock halign-left valign-top">RISC-V Vector Segment Load/Store Instructions</th>
-<th class="tableblock halign-left valign-top">RISC-V Vector ELEN</th>
+<th class="tableblock halign-left valign-top">ELEN</th>
+<th class="tableblock halign-left valign-top">FELEN=64 Support</th>
+<th class="tableblock halign-left valign-top">AndeStar V5 INT4 Vector Load Extension</th>
 <th class="tableblock halign-left valign-top">Linking Options</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn -mext-dsp</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v -mext-vector</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_seg -mext-vector</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64 -mext-vector</code></p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Y</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64 -mext-vector</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_seg -mext-vector</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_seg -mext-vector</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Y</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64_seg -mext-vector</code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1244,6 +1289,7 @@ This will build an application that links against NN Library <code>libnn.a</code
 <p>Conversely, if your system supports DSP ISA Extension, use the <code>-mext-dsp</code> option
 to enable DSP ISA Extension and enhance performance.</p>
 </div>
+<div style="page-break-after: always;"></div>
 </div>
 <div class="sect2">
 <h3 id="section:linking_glibc">Linking Options for Glibc Toolchains</h3>
@@ -1265,7 +1311,7 @@ to enable DSP ISA Extension and enhance performance.</p>
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-static</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Applies static linking</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Use static linking; otherwise, dynamic linking is applied</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lm</code></p></td>
@@ -1282,24 +1328,35 @@ to enable DSP ISA Extension and enhance performance.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library with RISC-V Vector Extension, AndeStar V5
-                           Vector Dot Product Extension, and ELEN=32 support</p></td>
+                             Vector Dot Product Extension, and ELEN=32 support</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_seg</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library with RISC-V Vector Extension, AndeStar V5
-                           Vector Dot Product Extension, ELEN=32 support, and
-                           RISC-V Vector segment load/store instructions</p></td>
+                             Vector Dot Product Extension, ELEN=32 support, and
+                             RISC-V Vector segment load/store instructions</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library with RISC-V Vector Extension, AndeStar V5
-                           Vector Dot Product Extension, and ELEN=64 support</p></td>
+                             Vector Dot Product Extension, and ELEN=64 support</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_seg</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library with RISC-V Vector Extension, AndeStar V5
-                           Vector Dot Product Extension, ELEN=64 support, and
-                           RISC-V Vector segment load/store instructions</p></td>
+                             Vector Dot Product Extension, ELEN=64 support, and
+                             RISC-V Vector segment load/store instructions</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library with RISC-V Vector Extension,
+                             AndeStar V5 Vector Dot Product Extension, and ELEN=64 and FELEN=64 support</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64_seg</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Links NN Library with RISC-V Vector Extension,
+                             AndeStar V5 Vector Dot Product Extension, ELEN=64 and FELEN=64 support,
+                             and RISC-V Vector segment load/store instructions</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-mext-dsp</code></p></td>
@@ -1324,165 +1381,195 @@ to enable DSP ISA Extension and enhance performance.</p>
 </tbody>
 </table>
 <div class="paragraph">
-<p>Static and dynamic linking require different options. <a href="#table-linking-options-type">Linking Options for Different Types</a> summarizes
-the linking needed based on the type of linking and the application&#8217;s requirement for DSP ISA support.</p>
+<p><a href="#table-linking-options-glibc">Linking Options by Extension and Vector Configuration (Glibc Toolchain)</a> summarizes the linking options needed based on the extension supportability of running targets.</p>
 </div>
-<table id="table-linking-options-type" class="tableblock frame-topbot grid-rows stretch">
-<caption class="title">Table 4. Linking Options for Different Types</caption>
+<table id="table-linking-options-glibc" class="tableblock frame-topbot grid-rows stretch">
+<caption class="title">Table 4. Linking Options by Extension and Vector Configuration (Glibc Toolchain)</caption>
 <colgroup>
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 12.5%;">
-<col style="width: 37.5%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 11.1111%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
-<th class="tableblock halign-left valign-top">Linking Type</th>
 <th class="tableblock halign-left valign-top">DSP ISA Extension</th>
 <th class="tableblock halign-left valign-top">RISC-V Vector and AndeStar V5 Vector Dot Product Extensions</th>
 <th class="tableblock halign-left valign-top">RISC-V Vector Segment Load/Store Instructions</th>
-<th class="tableblock halign-left valign-top">RISC-V Vector ELEN</th>
+<th class="tableblock halign-left valign-top">ELEN</th>
+<th class="tableblock halign-left valign-top">FELEN=64 Support</th>
+<th class="tableblock halign-left valign-top">AndeStar V5 INT4 Vector Load Extension</th>
 <th class="tableblock halign-left valign-top">Linking Options</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top" rowspan="6"><p class="tableblock">Static Linking</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-static -lnn</code></p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-static -lnn_p -mext-dsp</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-static -lnn_v -mext-vector</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-static -lnn_v_seg -mext-vector</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-static -lnn_v_elen64 -mext-vector</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-static -lnn_v_elen64_seg -mext-vector</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top" rowspan="6"><p class="tableblock">Dynamic Linking (default)</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn</code></p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-lnn_p -mext-dsp</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_p -mext-dsp</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-lnn_v -mext-vector</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v -mext-vector</code></p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64 -mext-vector</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Y</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64 -mext-vector</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">32</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-lnn_v_seg -mext-vector</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_seg -mext-vector</code></p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-lnn_v_elen64 -mext-vector</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Without</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">-lnn_v_elen64_seg -mext-vector</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_seg -mext-vector</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">N/A</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Y</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">With</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64_seg -mext-vector</code></p></td>
 </tr>
 </tbody>
 </table>
 <div class="paragraph">
-<p>The linking options required depend on whether the target system supports DSP ISA Extension.
+<p>The linking options required depend on whether the target system supports DSP ISA Extension and vector-related configurations.
 For systems with this support, use options such as <code>-static -lnn_p -mext-dsp</code> and <code>-lnn_p -mext-dsp</code> to build applications.
-For systems without the DSP ISA Extension support, use options like <code>-static -lnn</code> and <code>-lnn</code>.</p>
-</div>
-<div class="paragraph">
-<p>Additionally, if your target system is integrated with AndesCore 45-series processors,
-enable optimizations for these processors with the <code>-mtune=andes-45-series</code> option.
+For systems without the DSP ISA Extension support, use options like <code>-static -lnn</code> and <code>-lnn</code>.
 Ensure you select the correct options for your specific target system.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_notes_for_newlib_mculib_and_glibc_toolchains">Notes for Newlib, MCUlib, and Glibc Toolchains</h3>
+<h3 id="section:toolchains_notes">Notes for Newlib, MCUlib, and Glibc Toolchains</h3>
 <div class="paragraph">
 <p>When targeting AndesCore 23-series processors, use the <code>-mtune=andes-23-series</code> option;
 for AndesCore 45-series processors, use the <code>-mtune=andes-45-series</code> option to enable processor-specific optimizations.</p>
 </div>
 <div class="paragraph">
-<p>If your application uses functions involving the half-precision floating-point data type, compile it with the
-<code>-mzfh</code> option and ensure that your toolchain (e.g., <code>v5f</code> or <code>v5d</code> toolchain) supports hard-float.</p>
+<p>If your application uses functions involving the half-precision floating-point data type,
+compile it with the <code>-mzfh</code> option.
+Also, ensure that your toolchain (e.g., <code>v5f</code> or <code>v5d</code>) supports HardFloat and that
+the target supports the RISC-V Zfh extensions (and optionally the Zvfh extension).</p>
+</div>
+<div class="paragraph">
+<p>Linking options that apply optimizations with the RISC-V Vector Extension and ELEN=64,
+as well as functions with <code>_s4</code> in their names (e.g., <code>riscv_nn_conv_HWC_wrapper_s8_s8_s4_asym</code>),
+are supported only when AndeStar V5 INT4 Vector Load Extension is available.</p>
+</div>
+<div class="paragraph">
+<p>In RV32 toolchains, when using linking options that apply optimizations with the RISC-V Vector Extension,
+only options with ELEN=32 (e.g., <code>-lnn_v</code> or <code>-lnn_v_seg</code>) are supported.</p>
+</div>
+<div class="paragraph">
+<p>When using linking options that apply optimizations with the RISC-V Vector Extension,
+FELEN=64 is supported only with RV64 toolchains that provide double-precision HardFloat support (e.g., <code>v5d</code> toolchain).</p>
+</div>
+<div class="paragraph">
+<p>When applying optimizations with the RISC-V Vector Extension,
+the linking option is not supported only when ELEN=64, FELEN=32,
+and RISC-V vector segment load/store instructions (<code>-lnn_v_elen64</code>) are disabled simultaneously
+on RV64 toolchains with double-precision HardFloat support (e.g., <code>v5d</code> toolchain).</p>
 </div>
 <div class="paragraph">
 <p>In addition, to prevent potential issues when loading the program,
-be aware that applications built with the following options cannot be executed on targets that lack the corresponding support:</p>
+note that applications built with the options listed in <a href="#table-options-target-support">Linking Options Requiring Target Support</a> require corresponding target support;
+otherwise, they cannot be executed.</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>-mext-dsp</code>: DSP ISA Extension</p>
-</li>
-<li>
-<p><code>-mext-vector</code>: RISC-V Vector Extension</p>
-</li>
-<li>
-<p><code>-lnn_v_seg -mext-vector</code> or <code>-lnn_v_elen64_seg -mext-vector</code>: RISC-V Vector segment load/store instructions</p>
-</li>
-<li>
-<p><code>-lnn_v_elen64 -mext-vector</code> or <code>-lnn_v_elen64_seg -mext-vector</code>: ELEN=64</p>
-</li>
-<li>
-<p><code>-mzfh</code>: Half-precision floating-point extension</p>
-</li>
-<li>
-<p><code>-mext-zc</code>: RISC-V Code Size Reduction Extension</p>
-</li>
-</ul>
-</div>
+<table id="table-options-target-support" class="tableblock frame-topbot grid-rows stretch">
+<caption class="title">Table 5. Linking Options Requiring Target Support</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Feature/Extension</th>
+<th class="tableblock halign-left valign-top">Linking Options</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">DSP ISA Extension</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-mext-dsp</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RISC-V Vector Extension</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-mext-vector</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RISC-V Vector segment load/store instructions</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_seg</code>, <code>-lnn_v_elen64_seg</code>, or<br>
+ <code>-lnn_v_elen64_felen64_seg</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">ELEN=64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64</code>, <code>-lnn_v_elen64_seg</code>,<br>
+ <code>-lnn_v_elen64_felen64</code>, or<br>
+ <code>-lnn_v_elen64_felen64_seg</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FELEN=64</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-lnn_v_elen64_felen64</code> or<br>
+ <code>-lnn_v_elen64_felen64_seg</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Half-precision floating-point extension</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-mzfh</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">RISC-V Code Size Reduction Extension</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>-mext-zc</code></p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>
@@ -1502,12 +1589,12 @@ This column uses numbers to indicate the AndesAIRE NN SDK version in which each 
 <p>2 = AndesAIRE NN SDK 1.0.0 Official (NN Library 3.2.0)</p>
 </li>
 <li>
-<p>3 = AndesAIRE NN SDK 1.1.0 Official (NN Library 3.3.0)</p>
+<p>3 = AndesAIRE NN SDK 1.1.0 Official (NN Library 3.3.0) and AndesAIRE NN SDK 1.1.1 Official (NN Library 3.3.1)</p>
 </li>
 </ul>
 </div>
 <table id="table-libnn-function-list" class="tableblock frame-topbot grid-rows stretch">
-<caption class="title">Table 5. NN Library Function List</caption>
+<caption class="title">Table 6. NN Library Function List</caption>
 <colgroup>
 <col style="width: 22.2222%;">
 <col style="width: 66.6666%;">
@@ -3237,6 +3324,17 @@ Set <code>left_shift</code> to <code>INT_BITS - 3</code> if <code>INT_BITS</code
 <dd>
 <p>None</p>
 </dd>
+<dt class="hdlist1">Note</dt>
+<dd>
+<p>The calculations are described as follows:</p>
+<div class="stemblock">
+<div class="content">
+\[
+\mathtt{GeLU(x)} = \mathtt{0.5 x} \left( \mathtt{1} + \mathtt{tanh}\left( \sqrt{\mathtt{\frac{2}{\pi}}} \left( \mathtt{x} + \mathtt{0.044715 x^3} \right) \right) \right)
+\]
+</div>
+</div>
+</dd>
 </dl>
 </div>
 <div style="page-break-after: always;"></div>
@@ -3290,6 +3388,17 @@ Set <code>left_shift</code> to <code>INT_BITS - 3</code> if <code>INT_BITS</code
 <dt class="hdlist1">Returns</dt>
 <dd>
 <p>None</p>
+</dd>
+<dt class="hdlist1">Note</dt>
+<dd>
+<p>The calculations are described as follows:</p>
+<div class="stemblock">
+<div class="content">
+\[
+\mathtt{GeLU(x)} = \mathtt{0.5 x} \left( \mathtt{1} + \mathtt{tanh}\left( \sqrt{\mathtt{\frac{2}{\pi}}} \left( \mathtt{x} + \mathtt{0.044715 x^3} \right) \right) \right)
+\]
+</div>
+</div>
 </dd>
 </dl>
 </div>
@@ -3788,7 +3897,7 @@ The maximum output from the ReLU function is user-specified, for example:</p>
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{f(x) = \min(\max(0, x), \max\_val)}
+\mathtt{f(x)} = \mathtt{min(max(0, x), max_val)}
 \]
 </div>
 </div>
@@ -3851,7 +3960,7 @@ The maximum output from the ReLU function is user-specified, for example:</p>
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{f(x) = \min(\max(0, x), \max\_val)}
+\mathtt{f(x) = \min(\max(0, x), max\_val)}
 \]
 </div>
 </div>
@@ -3918,7 +4027,7 @@ The maximum output from the ReLU function is user-specified, for example:</p>
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{f(x) = \min(\max(0, x), \max\_val)}
+\mathtt{f(x) = \min(\max(0, x), max\_val)}
 \]
 </div>
 </div>
@@ -3980,7 +4089,7 @@ using the ReLU function. The maximum output from the ReLU function is user-speci
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{f(x) = \min(\max(0, x), \max\_val)}
+\mathtt{f(x) = \min(\max(0, x), max\_val)}
 \]
 </div>
 </div>
@@ -4512,7 +4621,23 @@ left-shifts the calculation results, while a negative value right-shifts them.</
 </dd>
 <dt class="hdlist1">Note</dt>
 <dd>
+<div class="ulist">
+<ul>
+<li>
 <p>The inputs are restricted to the range <code>[-10, 10]</code>.</p>
+</li>
+<li>
+<p>The calculations are described as follows:</p>
+<div class="stemblock">
+<div class="content">
+\[
+\sigma(\mathtt{x}) = \frac{\mathtt{exp(x)}}{\mathtt{exp(x)} + \mathtt{1}}
+\]
+</div>
+</div>
+</li>
+</ul>
+</div>
 </dd>
 </dl>
 </div>
@@ -4568,6 +4693,26 @@ left-shifts the calculation results, while a negative value right-shifts them.</
 <dd>
 <p><code>0</code></p>
 </dd>
+<dt class="hdlist1">Note</dt>
+<dd>
+<div class="ulist">
+<ul>
+<li>
+<p>The inputs are restricted to the range <code>[-10, 10]</code>.</p>
+</li>
+<li>
+<p>The calculations are described as follows:</p>
+<div class="stemblock">
+<div class="content">
+\[
+\mathtt{SiLU(x)} = \mathtt{x} * \frac{\mathtt{exp(x)}}{\mathtt{exp(x)} + \mathtt{1}}
+\]
+</div>
+</div>
+</li>
+</ul>
+</div>
+</dd>
 </dl>
 </div>
 <div style="page-break-after: always;"></div>
@@ -4621,6 +4766,17 @@ left-shifts the calculation results, while a negative value right-shifts them.</
 <dt class="hdlist1">Returns</dt>
 <dd>
 <p><code>0</code></p>
+</dd>
+<dt class="hdlist1">Note</dt>
+<dd>
+<p>The calculations are described as follows:</p>
+<div class="stemblock">
+<div class="content">
+\[
+\mathtt{SiLU}(\mathtt{x}) = \mathtt{x} * \frac{\mathtt{exp(x)}}{\mathtt{exp(x)} + \mathtt{1}}
+\]
+</div>
+</div>
 </dd>
 </dl>
 </div>
@@ -4834,6 +4990,17 @@ left-shifts the calculation results, while a negative value right-shifts them.</
 <dd>
 <p>The inputs are restricted to the range <code>[-10, 10]</code>.</p>
 </dd>
+<dt class="hdlist1">Note</dt>
+<dd>
+<p>The calculations are described as follows:</p>
+<div class="stemblock">
+<div class="content">
+\[
+\mathtt{tanh(x)} = \frac{\mathtt{exp(2x)} - \mathtt{1}}{\mathtt{exp(2x)} + \mathtt{1}}
+\]
+</div>
+</div>
+</dd>
 </dl>
 </div>
 <div style="page-break-after: always;"></div>
@@ -4887,6 +5054,17 @@ left-shifts the calculation results, while a negative value right-shifts them.</
 <dt class="hdlist1">Returns</dt>
 <dd>
 <p><code>0</code></p>
+</dd>
+<dt class="hdlist1">Note</dt>
+<dd>
+<p>The calculations are described as follows:</p>
+<div class="stemblock">
+<div class="content">
+\[
+\mathtt{tanh(x)} = \frac{\mathtt{exp(2x)} - \mathtt{1}}{\mathtt{exp(2x)} + \mathtt{1}}
+\]
+</div>
+</div>
 </dd>
 </dl>
 </div>
@@ -31944,7 +32122,7 @@ riscv_nn_softmax_s8_fast (in_data, LENGTH, out_data);</code></pre>
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{softmax}(x_{\scriptscriptstyle{i}}) = \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))} * \frac{1}{\sum \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))}}
+\mathtt{softmax(x_{\scriptscriptstyle{i}})} = \mathtt{e}^{(\mathtt{x_{\scriptscriptstyle{i}}} - \mathtt{max(x)})} * \frac{\mathtt{1}}{\sum \mathtt{e}^{(\mathtt{x_{\scriptscriptstyle{i}}} - \mathtt{max(x)})}}
 \]
 </div>
 </div>
@@ -31968,6 +32146,10 @@ riscv_nn_softmax_s8_fast (in_data, LENGTH, out_data);</code></pre>
 <dt class="hdlist1">Description</dt>
 <dd>
 <p>This function performs softmax calculations on single-precision floating-point input vectors.</p>
+<div class="paragraph">
+<p>Compared to <code>riscv_nn_softmax_f32_2pass</code>, this function subtracts the maximum value from
+each element in the vector to avoid numerical stability issues.</p>
+</div>
 </dd>
 <dt class="hdlist1">Parameters</dt>
 <dd>
@@ -32009,7 +32191,7 @@ riscv_nn_softmax_s8_fast (in_data, LENGTH, out_data);</code></pre>
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{softmax}(x_{\scriptscriptstyle{i}}) = \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))} * \frac{1}{\sum \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))}}
+\mathtt{softmax(x_{\scriptscriptstyle{i}})} = \mathtt{e}^{(\mathtt{x_{\scriptscriptstyle{i}}} - \mathtt{max(x)})} * \frac{\mathtt{1}}{\sum \mathtt{e}^{(\mathtt{x_{\scriptscriptstyle{i}}} - \mathtt{max(x)})}}
 \]
 </div>
 </div>
@@ -32033,6 +32215,10 @@ riscv_nn_softmax_s8_fast (in_data, LENGTH, out_data);</code></pre>
 <dt class="hdlist1">Description</dt>
 <dd>
 <p>This function performs softmax calculations on single-precision floating-point input vectors using a two-pass algorithm.</p>
+<div class="paragraph">
+<p>Compared to <code>riscv_nn_softmax_f32</code>, this function omits the subtraction of the maximum value
+from each element in the vector to achieve better performance may lead to numerical stability issues.</p>
+</div>
 </dd>
 <dt class="hdlist1">Parameters</dt>
 <dd>
@@ -32074,7 +32260,7 @@ riscv_nn_softmax_s8_fast (in_data, LENGTH, out_data);</code></pre>
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{softmax}(x_{\scriptscriptstyle{i}}) = \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))} * \frac{1}{\sum \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))}}
+\mathtt{softmax}(\mathtt{x_{\scriptscriptstyle{i}}}) = \mathtt{e}^{\mathtt{x_{\scriptscriptstyle{i}}}} * \frac{\mathtt{1}}{\sum \mathtt{e}^{\mathtt{x_{\scriptscriptstyle{i}}}}}
 \]
 </div>
 </div>
@@ -32149,7 +32335,7 @@ riscv_nn_softmax_s8_fast (in_data, LENGTH, out_data);</code></pre>
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{softmax}(x_{\scriptscriptstyle{i}}) = \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))} * \frac{1}{\sum \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))}}
+\mathtt{softmax}(\mathtt{x_{\scriptscriptstyle{i}}}) = \mathtt{e}^{(\mathtt{x_{\scriptscriptstyle{i}}} - \mathtt{max(x)})} * \frac{\mathtt{1}}{\sum \mathtt{e}^{(\mathtt{x_{\scriptscriptstyle{i}}} - \mathtt{max(x)})}}
 \]
 </div>
 </div>
@@ -32224,7 +32410,7 @@ riscv_nn_softmax_s8_fast (in_data, LENGTH, out_data);</code></pre>
 <div class="stemblock">
 <div class="content">
 \[
-\mathtt{softmax}(x_{\scriptscriptstyle{i}}) = \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))} * \frac{1}{\sum \mathtt{e}^{(x_{\scriptscriptstyle{i}} - \mathtt{max}(x))}}
+\mathtt{softmax}(\mathtt{x_{\scriptscriptstyle{i}}}) = \mathtt{e}^{(\mathtt{x_{\scriptscriptstyle{i}}} - \mathtt{max(x)})} * \frac{\mathtt{1}}{\sum \mathtt{e}^{(\mathtt{x_{\scriptscriptstyle{i}}} - \mathtt{max(x)})}}
 \]
 </div>
 </div>
@@ -35464,8 +35650,8 @@ half-precision floating-point data.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.4.0<br>
-Last updated 2025-05-27 09:09:42 +0800
+Version 3.5.0<br>
+Last updated 2025-11-07 13:12:46 +0800
 </div>
 </div>
 <script type="text/x-mathjax-config">

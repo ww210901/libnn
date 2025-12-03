@@ -34,18 +34,18 @@ int32_t riscv_nn_ew_mulc_s8_asym(const int8_t * in_vec,
                                  const int32_t act_max,
                                  const uint32_t size)
 {
-    uint32_t loop = 0;
-    int32_t output;
-    loop = size;
-    int32_t in1 = 0;
+    uint32_t loop = size;
+    int32_t out;
+    int32_t in = 0;
+
     while (loop > 0)
     {
-        in1 = *in_vec++ + in_offset;
-        output = in1 * in_const;// max:255*255
-        output = riscv_nn_requantize(output, out_scale, out_shift) + out_offset;
-        output = riscv_nn_clip_any(output, act_min, act_max);
+        in = *in_vec++ + in_offset;
+        out = in * in_const;// max:255*255
+        out = riscv_nn_requantize(out, out_scale, out_shift) + out_offset;
+        out = riscv_nn_clip_any(out, act_min, act_max);
 
-        *out_vec++ = (int8_t)output;
+        *out_vec++ = (int8_t)out;
         loop--;
     }
 

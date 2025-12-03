@@ -26,7 +26,7 @@
 
 #if !(__clang__) && (__riscv_xlen == 32) && (__riscv_dsp)
 // customized optimization for 45-series
-__attribute__((optimize("-O2")))
+__attribute__((optimize("-O2"), optimize ("-fno-strict-aliasing")))
 #endif
 int32_t riscv_nn_conv_dw_HWC_3x3_s8_s8_s8_asym_bias_any(const int8_t * in_tensor,
                                                         const int32_t in_tensor_dim_x,

@@ -38,9 +38,8 @@ int32_t riscv_nn_ew_mul_s16_asym(const int16_t * in_vec1,
     (void)in_offset1;
     (void)in_offset2;
     (void)out_offset;
-    int32_t loop;
+    int32_t loop = size;
 
-    loop = size;
     while (loop > 0)
     {
         int32_t input_1 = *in_vec1++;

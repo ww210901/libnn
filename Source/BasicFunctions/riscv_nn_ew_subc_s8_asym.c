@@ -37,20 +37,21 @@ int32_t riscv_nn_ew_subc_s8_asym(const int8_t * in_vec,
                                  const int32_t act_max,
                                  const uint32_t size)
 {
-    uint32_t loop;
-    int32_t in1, output;
-    loop = size;
-    while(loop > 0)
-    {
-        in1 = (*in_vec++ + in_offset) << lshift;
-        in1 = riscv_nn_requantize_ns(in1, in_scale, -in_rshift);
-        output = in1 - in_const;
-        output = riscv_nn_requantize_ns(output, out_scale, -out_rshift);
-        output += out_offset;
-        output = MAX(output, act_min);
-        output = MIN(output, act_max);
+    int32_t in, out;
+    uint32_t loop = size;
 
-        *out_vec++ = output;
+    while (loop > 0)
+    {
+        in = (*in_vec++ + in_offset) << lshift;
+        in = riscv_nn_requantize_ns(in, in_scale, -in_rshift);
+
+        out = in - in_const;
+        out = riscv_nn_requantize_ns(out, out_scale, -out_rshift);
+        out += out_offset;
+        out = MAX(out, act_min);
+        out = MIN(out, act_max);
+
+        *out_vec++ = out;
         loop--;
     }
     return 0;

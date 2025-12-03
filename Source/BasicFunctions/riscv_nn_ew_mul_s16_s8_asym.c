@@ -36,13 +36,12 @@ int32_t riscv_nn_ew_mul_s16_s8_asym(const int16_t * in_vec1,
     while (loop > 0)
     {
         /* C = A * B */
-        int32_t mul_res = (*in_vec1) * (*in_vec2);
-        mul_res = riscv_nn_requantize(mul_res, out_scale, out_shift) + out_offset;
+        int32_t out = (*in_vec1) * (*in_vec2);
+        out = riscv_nn_requantize(out, out_scale, out_shift) + out_offset;
+        out = MAX(out, ((int8_t) 0x80));
+        out = MIN(out, ((int8_t) 0x7f));
 
-        mul_res = MAX(mul_res, ((int8_t) 0x80));
-        mul_res = MIN(mul_res, ((int8_t) 0x7f));
-
-        *out_vec++ = (int8_t)mul_res;
+        *out_vec++ = (int8_t)out;
         in_vec1++;
         in_vec2++;
         loop--;

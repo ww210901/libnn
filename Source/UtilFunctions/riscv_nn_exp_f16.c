@@ -29,7 +29,7 @@ typedef union
     int16_t   i16;
 } _union16_t;
 
-#if   !defined(ENA_KERNEL_FP32)
+#if   !defined(ENA_KERNEL_FP32) && defined(ENA_NDS_FPU) && !defined(ENA_ACE_RVV)
 //--- const values for taylor_poly_f16 ---
 // Exponent polynomial coefficients
 static const float16_t exp_coe0 = EXP_COE0;
@@ -51,6 +51,7 @@ static const float16_t exp_max  = EXP_F16_MAX;
 static const float16_t exp_min  = EXP_F16_MIN;
 
 
+// #if !(defined(ENA_VEC_ISA) && defined(ENA_VEC_FPU)) && !defined(ENA_KERNEL_FP32)
 #if !defined(ENA_KERNEL_FP32)
 static inline float16_t taylor_poly_f16(float16_t x)
 {

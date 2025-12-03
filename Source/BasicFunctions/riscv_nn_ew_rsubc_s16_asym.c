@@ -44,23 +44,20 @@ int32_t riscv_nn_ew_rsubc_s16_asym(const int16_t * in_vec,
 {
     (void)in_offset;
     (void)out_offset;
+    uint32_t loop = size;
+    int32_t in, out;
 
-    int32_t loop;
-
-    loop = size;
     while (loop > 0)
     {
-        int32_t input_1 = *in_vec++ << lshift;
+        in = *in_vec++ << lshift;
+        in = riscv_nn_requantize_ns(in, in_scale, -in_rshift);
 
-        input_1 = riscv_nn_requantize_ns(input_1, in_scale, -in_rshift);
+        out = in_const - in;
+        out = riscv_nn_requantize_ns(out, out_scale, -out_rshift);
+        out = MAX(out, act_min);
+        out = MIN(out, act_max);
 
-        int32_t sum = in_const - input_1;
-        sum = riscv_nn_requantize_ns(sum, out_scale, -out_rshift);
-
-        sum = MAX(sum, act_min);
-        sum = MIN(sum, act_max);
-
-        *out_vec++ = sum;
+        *out_vec++ = out;
         loop--;
     }
 

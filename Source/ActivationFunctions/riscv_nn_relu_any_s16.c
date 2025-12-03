@@ -20,7 +20,6 @@
 /** @file*/
 
 #include "internal_nn_math.h"
-#include "riscv_nn_activation.h"
 
 //// Activations Functions
 void riscv_nn_relu_any_s16(q15_t *data, uint32_t size, q15_t max_val)
